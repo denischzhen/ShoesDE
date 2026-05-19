@@ -5,15 +5,51 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ShoesDE"
         mc:Ignorable="d" Style="{StaticResource Windows}"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         Title="Продукты" Height="800" Width="1200">
+    
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
 
-        <Grid HorizontalAlignment="Left" Name="AdminPanel">
+        <!-- ================= HEADER ================= -->
+        <Grid Grid.Row="0" Background="#00fa9a">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ЛОГОТИП -->
+            <Image Source="/Res/icon.png"
+               Width="60"
+               Height="60"
+               Margin="15,10,10,10"
+               VerticalAlignment="Center"/>
+
+            <!-- ЗАГОЛОВОК -->
+            <TextBlock Grid.Column="1"
+                   Text="ООО Обувь"
+                   VerticalAlignment="Center"
+                   FontSize="24"
+                   FontWeight="Bold"/>
+
+            <!-- ПОЛЬЗОВАТЕЛЬ -->
+            <TextBlock Grid.Column="2"
+                   Name="FullUserName"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Right"
+                   Margin="10"/>
+        </Grid>
+
+        <!-- ================= ФИЛЬТРЫ ================= -->
+        <Grid Grid.Row="1" HorizontalAlignment="Left" Name="AdminPanel">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -27,22 +63,27 @@
 
             <StackPanel Grid.Column="1" Margin="20 0">
                 <TextBlock Text="Сортировка:"/>
-                <ComboBox Name="SortingComboBox" Width="200" SelectionChanged="SortingComboBox_SelectionChanged"/>
+                <ComboBox Name="SortingComboBox" Width="200"
+                      SelectionChanged="SortingComboBox_SelectionChanged"/>
             </StackPanel>
 
             <StackPanel Grid.Column="2" Margin="20 0">
                 <TextBlock Text="Фильтрация:"/>
-                <ComboBox Name="FilteringComboBox" Width="200" SelectionChanged="FilteringComboBox_SelectionChanged"/>
+                <ComboBox Name="FilteringComboBox" Width="200"
+                      SelectionChanged="FilteringComboBox_SelectionChanged"/>
             </StackPanel>
         </Grid>
 
-        <TextBlock Grid.Row="0" Name="FullUserName" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="20 10"/>
-
-        <ScrollViewer Grid.Row="1">
+        <!-- ================= СПИСОК ================= -->
+        <ScrollViewer Grid.Row="2">
             <ItemsControl Name="ProductList">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Margin="10" Tag="{Binding Id}" Background="{Binding Background}" MouseDown="Border_MouseDown">
+                        <Border Margin="10"
+                            Tag="{Binding Id}"
+                            Background="{Binding Background}"
+                            MouseDown="Border_MouseDown">
+
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -50,15 +91,19 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Border Grid.Column="0" Width="80" Height="80" Margin="15 0">
+                                <Border Grid.Column="0"
+                                    Width="80"
+                                    Height="80"
+                                    Margin="15 0">
                                     <Image Source="{Binding Photo}"/>
                                 </Border>
 
                                 <StackPanel Grid.Column="1">
+
                                     <TextBlock FontWeight="SemiBold">
-                                        <Run Text="{Binding Category.Name}"/>
-                                        <Run Text=" | "/>
-                                        <Run Text="{Binding Name}"/>
+                                    <Run Text="{Binding Category.Name}"/>
+                                    <Run Text=" | "/>
+                                    <Run Text="{Binding Name}"/>
                                     </TextBlock>
 
                                     <StackPanel Orientation="Horizontal">
@@ -70,33 +115,40 @@
                                         <TextBlock Text="Поставщик: "/>
                                         <TextBlock Text="{Binding Provider.Name}"/>
                                     </StackPanel>
-                                    
+
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="Производитель: "/>
                                         <TextBlock Text="{Binding Producer.Name}"/>
                                     </StackPanel>
-                                    
+
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="Цена: "/>
-                                        <TextBlock Text="{Binding Price, StringFormat=F2}"/>
+
+                                        <TextBlock Text="{Binding OldPrice, StringFormat=F2}"
+                                               Foreground="Red"
+                                               TextDecorations="Strikethrough"/>
+
                                         <TextBlock Text=" "/>
-                                        <TextBlock Text="{Binding OldPrice, StringFormat=F2}" Foreground="Red" TextDecorations="Strikethrough"/>
+
+                                        <TextBlock Text="{Binding Price, StringFormat=F2}"/>
                                     </StackPanel>
-                                    
+
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="Ед. измерения: "/>
                                         <TextBlock Text="{Binding Unit.Name}"/>
                                     </StackPanel>
-                                    
+
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="Количество: "/>
                                         <TextBlock Text="{Binding AmountInStock}"/>
                                     </StackPanel>
+
                                 </StackPanel>
 
                                 <Border Grid.Column="2">
                                     <TextBlock Text="{Binding Discount}"/>
                                 </Border>
+
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -104,7 +156,29 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <Button Grid.Row="2" Name="LogOutButton" Content="Выйти" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20 10" Click="LogOutButton_Click"/>
-        <Button Grid.Row="2" Name="CreateButton" Content="Создать" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="20 10" Click="CreateButton_Click"/>
+        <!-- ================= КНОПКИ ================= -->
+        <Button Grid.Row="3"
+            Name="LogOutButton"
+            Content="Выйти"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Left"
+            Margin="20 10"
+            Click="LogOutButton_Click"/>
+
+        <Button Grid.Row="3"
+            Name="CreateButton"
+            Content="Создать"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Right"
+            Margin="20 10"
+            Click="CreateButton_Click"/>
+
+        <Button Grid.Row="3"
+            Content="Заказы"
+            Name="OrdersButton"
+            Click="OrdersButton_Click"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Margin="0 10"/> 
     </Grid>
 </Window>

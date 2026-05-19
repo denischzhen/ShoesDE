@@ -42,6 +42,12 @@ namespace ShoesDE
                 _isEditing = true;
                 _product = _db.Product.Find(id);
             }
+
+            if (!_isEditing)
+            {
+                DeleteButton.Visibility = Visibility.Collapsed;
+            }
+
             LoadData();
         }
 
@@ -113,6 +119,43 @@ namespace ShoesDE
             else
             {
                 CreateProduct();
+            }
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_product.ProductInOrder.Count > 0)
+            {
+                _mh.ShowError(
+                    "Нельзя удалить товар, который есть в заказах!");
+
+                return;
+            }
+
+            MessageBoxResult result = MessageBox.Show(
+                "Удалить товар?",
+                "Подтверждение",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                _db.Product.Remove(_product);
+
+                _db.SaveChanges();
+
+                _mh.ShowInfo("Товар успешно удалён!");
+
+                new ProductWindow().Show();
+
+                Close();
+            }
+            catch (Exception ex)
+            {
+                _mh.ShowError(ex.Message);
             }
         }
 

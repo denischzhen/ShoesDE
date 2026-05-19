@@ -1,0 +1,59 @@
+﻿<Window x:Class="ShoesDE.AddEditOrderWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Заказ"
+        Height="400"
+        Width="600"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- CONTENT -->
+        <StackPanel Margin="20">
+
+            <TextBlock Text="Артикул"/>
+            <TextBox Name="ReceiptCodeBox"/>
+
+            <TextBlock Text="Статус"/>
+            <ComboBox Name="StatusBox"
+                      DisplayMemberPath="Name"/>
+
+            <TextBlock Text="ПВЗ"/>
+            <ComboBox Name="PickupBox"
+                      DisplayMemberPath="City"/>
+
+            <TextBlock Text="Дата заказа"/>
+            <DatePicker Name="CreationDateBox"/>
+
+            <TextBlock Text="Дата выдачи"/>
+            <DatePicker Name="DeliveryDateBox"/>
+
+            <Button Content="Сохранить"
+                    Click="Save_Click"
+                    Margin="0,10"/>
+
+            <Button Content="Удалить"
+                    Name="DeleteButton"
+                    Click="Delete_Click"/>
+
+        </StackPanel>
+
+        <!-- FOOTER -->
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left"
+                    Margin="10">
+
+            <Button Content="Назад"
+                    Click="Back_Click"/>
+
+        </StackPanel>
+
+    </Grid>
+</Window>

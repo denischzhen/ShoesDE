@@ -1,0 +1,134 @@
+﻿<Window x:Class="ShoesDE.OrderWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Заказы"
+        Height="700"
+        Width="1000"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Style="{StaticResource Windows}">
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <Grid Grid.Row="0" Background="#00fa9a">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Image Source="/Res/icon.png"
+                   Width="60"
+                   Height="60"
+                   Margin="15"
+                   VerticalAlignment="Center"/>
+
+            <TextBlock Grid.Column="1"
+                       Text="ООО Обувь | Заказы"
+                       VerticalAlignment="Center"
+                       FontSize="22"
+                       FontWeight="Bold"/>
+
+            <TextBlock Grid.Column="2"
+                       Name="FullUserName"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Right"
+                       Margin="10"/>
+        </Grid>
+
+        <!-- LIST -->
+        <ScrollViewer Grid.Row="1">
+
+            <ItemsControl Name="OrderList">
+
+                <ItemsControl.ItemTemplate>
+
+                    <DataTemplate>
+
+                        <Border Margin="10"
+                                Padding="10"
+                                BorderThickness="1"
+                                BorderBrush="Gray"
+                                Tag="{Binding Id}"
+                                MouseDown="Border_MouseDown">
+
+                            <Grid>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <!-- 1 -->
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Text="{Binding ReceiptCode}"
+                                               FontWeight="Bold"
+                                               FontSize="16"/>
+
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding DeliveryDate, StringFormat=dd.MM.yyyy}"/>
+                                </Grid>
+
+                                <!-- 2 -->
+                                <TextBlock Grid.Row="1"
+                                           Text="{Binding OrderStatus.Name}"/>
+
+                                <!-- 3 -->
+                                <TextBlock Grid.Row="2"
+                                           Text="{Binding PickUpPoint.City}"/>
+
+                                <!-- 4 -->
+                                <TextBlock Grid.Row="3"
+                                           Text="{Binding CreationDate, StringFormat=dd.MM.yyyy}"/>
+
+                            </Grid>
+
+                        </Border>
+
+                    </DataTemplate>
+
+                </ItemsControl.ItemTemplate>
+
+            </ItemsControl>
+
+        </ScrollViewer>
+
+        <!-- BUTTONS -->
+        <Grid Grid.Row="2">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Button Content="Назад"
+                    HorizontalAlignment="Left"
+                    Margin="10"
+                    Click="Back_Click"/>
+
+            <Button Content="Добавить заказ"
+                    Grid.Column="2"
+                    HorizontalAlignment="Right"
+                    Margin="10"
+                    Click="AddOrderButton_Click"/>
+
+        </Grid>
+
+    </Grid>
+</Window>

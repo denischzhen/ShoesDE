@@ -2,169 +2,200 @@
 using ShoesDE.Helpers;
 using ShoesDE.Statics;
 using ShoesDE.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace ShoesDE
 {
-    /// <summary>
-    /// Логика взаимодействия для ProductWindow.xaml
-    /// </summary>
     public partial class ProductWindow : Window
     {
         private ShoesDEEntities _db = new ShoesDEEntities();
-        private MessageHelper _mbh = new MessageHelper();
-        private List<ProductViewModel> _productViewModels = new List<ProductViewModel>();
 
-        private string[] _sortingsTypes = new string[]
+        private MessageHelper _mh = new MessageHelper();
+
+        private string[] _sortingTypes =
         {
             "По умолчанию",
             "По убыванию",
             "По возрастанию"
         };
 
-        private List<string> _filteringTypes = new List<string>()
-        {
-            "Все поставщики"
-        };
+        private List<string> _filteringTypes =
+            new List<string>()
+            {
+                "Все поставщики"
+            };
 
         public ProductWindow()
         {
             InitializeComponent();
-            LoadProducts();
+
             LoadData();
+
             LoadUI();
+
+            ApplyFilters();
         }
 
         private void LoadUI()
         {
             User user = CurrentSession.CurrentUser;
+
             if (user == null || user.RoleId == 3)
             {
                 AdminPanel.Visibility = Visibility.Collapsed;
+
+                CreateButton.Visibility = Visibility.Collapsed;
             }
-            else if (user.RoleId == 1)
+            else if (user.RoleId == 2)
             {
-                CreateButton.Visibility = Visibility.Visible;
+                CreateButton.Visibility = Visibility.Collapsed;
             }
         }
 
         private void LoadData()
         {
-            SortingComboBox.ItemsSource = _sortingsTypes;
+            SortingComboBox.ItemsSource = _sortingTypes;
+
             SortingComboBox.SelectedIndex = 0;
 
-            var provider = _db.Provider.ToList();
-            foreach (var p in provider)
-                _filteringTypes.Add(p.Name);
+            var providers = _db.Provider.ToList();
+
+            foreach (var provider in providers)
+            {
+                _filteringTypes.Add(provider.Name);
+            }
+
             FilteringComboBox.ItemsSource = _filteringTypes;
+
             FilteringComboBox.SelectedIndex = 0;
 
             User user = CurrentSession.CurrentUser;
+
             if (user != null)
             {
-                FullUserName.Text = $"{user.Surname} {user.Name} {user.Patronymic}";
+                FullUserName.Text =
+                    $"{user.Surname} {user.Name} {user.Patronymic}";
             }
         }
 
-        private void LoadProducts()
+        private void ApplyFilters()
         {
             var products = _db.Product.ToList();
 
-            foreach (var p in products)
+            string searchText = "";
+
+            if (SearchingTextBox.Text != null)
             {
-                _productViewModels.Add(new ProductViewModel(p));
+                searchText = SearchingTextBox.Text.ToLower();
             }
-            ProductList.ItemsSource = _productViewModels;
-        }
 
-        private void UpdateProducts()
-        {
-            ProductList.ItemsSource = _productViewModels;
-        }
+            products = products.Where(p =>
+                p.Name.ToLower().Contains(searchText) ||
+                p.Description.ToLower().Contains(searchText) ||
+                p.Category.Name.ToLower().Contains(searchText) ||
+                p.Provider.Name.ToLower().Contains(searchText) ||
+                p.Producer.Name.ToLower().Contains(searchText) ||
+                p.Unit.Name.ToLower().Contains(searchText)
+            ).ToList();
 
-        private void LogOutButton_Click(object sender, RoutedEventArgs e)
-        {
-            CurrentSession.CurrentUser = null;
-            new MainWindow().Show();
-            Close();
-        }
+            string provider = "Все поставщики";
 
-        private void SearchingTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            string searchingText = SearchingTextBox.Text.ToLower();
-            _productViewModels = _db.Product
-                .Where(p =>
-                    p.Category.Name.ToLower().Contains(searchingText) ||
-                    p.Name.ToLower().Contains(searchingText) ||
-                    p.Description.ToLower().Contains(searchingText) ||
-                    p.Provider.Name.ToLower().Contains(searchingText) ||
-                    p.Producer.Name.ToLower().Contains(searchingText) ||
-                    p.Unit.Name.ToLower().Contains(searchingText)
-                )
-                .ToList()
+            if (FilteringComboBox.SelectedItem != null)
+            {
+                provider = FilteringComboBox.SelectedItem.ToString();
+            }
+
+            if (provider != "Все поставщики")
+            {
+                products = products
+                    .Where(p => p.Provider.Name == provider)
+                    .ToList();
+            }
+
+            int sortType = SortingComboBox.SelectedIndex;
+
+            if (sortType == 1)
+            {
+                products = products
+                    .OrderByDescending(p => p.AmountInStock)
+                    .ToList();
+            }
+            else if (sortType == 2)
+            {
+                products = products
+                    .OrderBy(p => p.AmountInStock)
+                    .ToList();
+            }
+
+            ProductList.ItemsSource = products
                 .Select(p => new ProductViewModel(p))
                 .ToList();
-            UpdateProducts();
         }
 
-        private void SortingComboBox_SelectionChanged(object sender, RoutedEventArgs e)
+        private void SearchingTextBox_TextChanged(
+            object sender,
+            TextChangedEventArgs e)
         {
-            int sortingType = SortingComboBox.SelectedIndex;
-            if (sortingType == 0)
-            {
-                LoadProducts();
-            }
-            else if (sortingType == 1)
-            {
-                _productViewModels = _productViewModels.OrderByDescending(p => p.AmountInStock).ToList();
-                UpdateProducts();
-            }
-            else if (sortingType == 2)
-            {
-                _productViewModels = _productViewModels.OrderBy(p => p.AmountInStock).ToList();
-                UpdateProducts();
-            }
+            ApplyFilters();
         }
 
-        private void FilteringComboBox_SelectionChanged(object sender, RoutedEventArgs e)
+        private void SortingComboBox_SelectionChanged(
+            object sender,
+            SelectionChangedEventArgs e)
         {
-            string filterText = FilteringComboBox.SelectedValue.ToString();
-            if (filterText == "Все поставщики")
-            {
-                LoadProducts();
-                return;
-            }
-            _productViewModels = _productViewModels.Where(p => p.Provider.Name == filterText).ToList();
-            UpdateProducts();
+            ApplyFilters();
         }
 
-        private void CreateButton_Click(object sender, RoutedEventArgs e)
+        private void FilteringComboBox_SelectionChanged(
+            object sender,
+            SelectionChangedEventArgs e)
         {
-            new AddEditProductWindow(null).Show();
+            ApplyFilters();
+        }
+
+        private void LogOutButton_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            CurrentSession.CurrentUser = null;
+
+            new MainWindow().Show();
+
             Close();
         }
 
-        private void Border_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void CreateButton_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            new AddEditProductWindow(null).Show();
+
+            Close();
+        }
+
+        private void OrdersButton_Click(object sender, RoutedEventArgs e)
+        {
+            new OrderWindow().Show();
+            Close();
+        }
+
+        private void Border_MouseDown(
+            object sender,
+            MouseButtonEventArgs e)
         {
             User user = CurrentSession.CurrentUser;
-            if (user.RoleId != 1)
+
+            if (user == null || user.RoleId != 1)
                 return;
 
             int id = (int)(sender as Border).Tag;
 
             new AddEditProductWindow(id).Show();
+
             Close();
         }
     }

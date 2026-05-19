@@ -36,18 +36,19 @@ namespace ShoesDE
             string login = LoginEnter.Text;
             string password = PasswordEnter.Password;
 
-            var user = _db.User.Where(u => u.Login == login && u.Password == password).FirstOrDefault();
+            var user = _db.User
+                .FirstOrDefault(u => u.Login == login && u.Password == password);
 
             if (user == null)
             {
                 _mh.ShowError("Введён неверный логин или пароль");
-            }
-            else
-            {
-                CurrentSession.CurrentUser = user;
-                new ProductWindow(user).Show();
                 return;
             }
+
+            CurrentSession.CurrentUser = user;
+
+            new ProductWindow().Show();
+            Close();
         }
 
         private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
